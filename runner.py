@@ -113,8 +113,8 @@ class Player(Ship):
                             self.lasers.remove(laser)
 
     def healthbar(self, window):
-        pygame.draw.rect(window, (255,40,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
-        pygame.draw.rect(window, (20,255,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self.health/self.max_health), 10))
+        pygame.draw.rect(window, (240,90,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
+        pygame.draw.rect(window, (40,255,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width() * (self.health/self.max_health), 10))
 
 class Enemy(Ship):
     shift = 0
@@ -172,11 +172,10 @@ def main():
     wave_length = 5
     wave_range = -2000
     enemy_velocity = 1
+    Enemy.shift = 0
     
     enemies = []
     lasers = []
-    player_lasers = []
-    
     
     player = Player(300, 620)
     
@@ -188,7 +187,12 @@ def main():
             if laser.off_screen(HEIGHT):
                 lasers.remove(laser)
             elif laser.collision(object):
-                object.health -= 5
+                if laser.color == "green":
+                    object.health -= 15
+                elif laser.color == "red":
+                    object.health -= 10
+                else:
+                    object.health -= 5
                 lasers.remove(laser)
     
     def draw_window():
@@ -208,7 +212,7 @@ def main():
             
         player.draw(WIN)
         
-        if new_level:
+        if new_level == True:
             level_labelA = end_font.render(f"Level {level}", 1, (255,255,255))
             WIN.blit(level_labelA, (WIDTH/2 - level_labelA.get_width()/2, 350))
             
@@ -227,22 +231,22 @@ def main():
         clock.tick(FPS)
         draw_window()
         
-        # Pauses if there is a new level, the player has won, or the player has lost
-        if len(enemies) == 0 and level+1 % 5 == 0:
-            new_level = True
-            stop_timer += 1
-        
+        # Pauses if there is a new level, the player has won, or the player has lost 
         if new_level:
-            while stop_timer < FPS*2:
+            if stop_timer > FPS*1:
+                new_level = False
+                stop_timer = 0
+            else: 
+                stop_timer += 1
+                if len(player.lasers) != 0:
+                    player.lasers.clear()
                 continue
-            stop_timer = 0
-                
             
         if lives <= 0 or player.health <= 0:
             lost = True 
             stop_timer += 1
             
-        if len(enemies) == 0 and level > 30:
+        if len(enemies) == 0 and level == 30:
             won = True
             stop_timer += 1
         
@@ -255,21 +259,22 @@ def main():
         # Spawns enemies and handles difficulty ramp with new waves
         if len(enemies) == 0:
             level += 1
-            player_velocity += .25
+            player_velocity += .2
             enemy_velocity += .1
             wave_length += 1
-            
+
+            if level % 10 == 0:
+                player.max_health += 100
+                fire_rate -= 1
+                
             if level % 5 == 0:
+                new_level = True
                 wave_range -= 1000
                 Enemy.shift += .5
                 player.health = player.max_health
                 if Player.max_cooldown > 10:
                     Player.max_cooldown -= 5
-            
-            if level % 10 == 0:
-                player.max_health += 10
-                fire_rate -= 1
-            
+                
             for i in range(wave_length):
                 enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
