@@ -105,11 +105,12 @@ class Player(Ship):
             laser.move(velocity)
             if laser.off_screen(HEIGHT):
                 self.lasers.remove(laser)
-        for laser in self.lasers:
-            for object in objects:
-                if laser.collision(object):
-                    objects.remove(object)
-                    self.lasers.remove(laser)
+            else:
+                for object in objects:
+                    if laser.collision(object):
+                        objects.remove(object)
+                        if laser in self.lasers:
+                            self.lasers.remove(laser)
 
     def healthbar(self, window):
         pygame.draw.rect(window, (255,40,0), (self.x, self.y + self.ship_img.get_height() + 10, self.ship_img.get_width(), 10))
@@ -162,12 +163,12 @@ def main():
     lives = 5
     
     main_font = pygame.font.SysFont("arial", 40)
-    end_font = pygame.font.SysFont("arial", 70)
+    end_font = pygame.font.SysFont("arial", 80)
     
     laser_velocity = 6
     laser_velocity2 = 8
     player_velocity = 4
-    fire_rate = 6
+    fire_rate = 7
     wave_length = 5
     wave_range = -2000
     enemy_velocity = 1
@@ -177,7 +178,7 @@ def main():
     player_lasers = []
     
     
-    player = Player(300, 650)
+    player = Player(300, 620)
     
     clock = pygame.time.Clock()
     
@@ -187,10 +188,7 @@ def main():
             if laser.off_screen(HEIGHT):
                 lasers.remove(laser)
             elif laser.collision(object):
-                if laser.color == "blue":
-                    object.health -= 5
-                else:
-                    object.health -= 10
+                object.health -= 5
                 lasers.remove(laser)
     
     def draw_window():
@@ -210,8 +208,8 @@ def main():
             
         player.draw(WIN)
         
-        if len(enemies) == 0 and level % 5 == 0:
-            level_labelA = main_font.render(f"Level {level}", 1, (255,255,255))
+        if new_level:
+            level_labelA = end_font.render(f"Level {level}", 1, (255,255,255))
             WIN.blit(level_labelA, (WIDTH/2 - level_labelA.get_width()/2, 350))
             
         if lost == True:
@@ -230,15 +228,15 @@ def main():
         draw_window()
         
         # Pauses if there is a new level, the player has won, or the player has lost
-        if len(enemies) == 0 and level % 5 == 0 and level != 0:
+        if len(enemies) == 0 and level+1 % 5 == 0:
             new_level = True
             stop_timer += 1
         
         if new_level:
-            if stop_timer > FPS*1:
-                run = True
-            else:
+            while stop_timer < FPS*2:
                 continue
+            stop_timer = 0
+                
             
         if lives <= 0 or player.health <= 0:
             lost = True 
@@ -258,6 +256,9 @@ def main():
         if len(enemies) == 0:
             level += 1
             player_velocity += .25
+            enemy_velocity += .1
+            wave_length += 1
+            
             if level % 5 == 0:
                 wave_range -= 1000
                 Enemy.shift += .5
@@ -266,12 +267,9 @@ def main():
                     Player.max_cooldown -= 5
             
             if level % 10 == 0:
-                player.max_health += 100
-                
-            if wave_length < 50:
-                wave_length += 2
-            if enemy_velocity < 9:
-                enemy_velocity += .3
+                player.max_health += 10
+                fire_rate -= 1
+            
             for i in range(wave_length):
                 enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
@@ -279,13 +277,13 @@ def main():
         # Checks to see if program has been quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-               run = False
+               quit()
         
         # Makes the ship respond to keypresses (Move and shoot)
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_w] or keys[pygame.K_UP]) and player.y - player_velocity > 70: # Forward
             player.y -= player_velocity   
-        if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + player_velocity < HEIGHT - player.get_height() - 10: # Backward
+        if (keys[pygame.K_s] or keys[pygame.K_DOWN]) and player.y + player_velocity < HEIGHT - player.get_height() - 20: # Backward
             player.y += player_velocity
         if (keys[pygame.K_d] or keys[pygame.K_RIGHT]) and player.x + player_velocity < WIDTH - player.get_width() - 10: # Right
             player.x += player_velocity
@@ -294,6 +292,10 @@ def main():
         
         if keys[pygame.K_SPACE]:
             player.shoot()
+        
+        # Returns to main menu if esc is pressed
+        if keys[pygame.K_ESCAPE]:
+            run = False
         
         move_lasers(laser_velocity, player)
         
@@ -321,6 +323,26 @@ def main():
                 enemies.remove(enemy)
                 
         player.move_lasers(-laser_velocity2, enemies)
+        
+        
+        
                
-main()
+def main_menu():
+    title_font = pygame.font.SysFont("comicsans", 50)
+    run = True
+    while run:
+        WIN.blit(BACKGROUND, (0,0))
+        title_label = title_font.render("Press enter to begin..", 1, (255,255,255))
+        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_RETURN]:
+            main()
+            
+    pygame.quit()
+    
+main_menu()
             
