@@ -82,12 +82,12 @@ def main():
         if pause == True:
             WIN.blit(BACKGROUND, (0,0))
             pause_label = title_font_large.render("PAUSE", 1, (250,250,250))
-            WIN.blit(pause_label, (WIDTH/2 - pause_label.get_width()/2, 150))
+            WIN.blit(pause_label, (WIDTH/2 - pause_label.get_width()/2, 180))
             WIN.blit(lives_label, (20, 10))
             WIN.blit(level_label, (590, 10))
             continue_label = title_font.render("Press enter to continue ", 1, (220,220,220))
-            continue_label2 = title_font.render("Press esc again to go to the Main Menu.. ", 1, (200,200,200))
-            WIN.blit(continue_label, (WIDTH/2 - continue_label.get_width()/2, 360))
+            continue_label2 = title_font.render("Press esc again to go to Main Menu", 1, (200,200,200))
+            WIN.blit(continue_label, (WIDTH/2 - continue_label.get_width()/2, 340))
             WIN.blit(continue_label2, (WIDTH/2 - continue_label2.get_width()/2, 400))
             
         if new_level == True:

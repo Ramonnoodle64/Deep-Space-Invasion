@@ -8,7 +8,7 @@ WIDTH, HEIGHT = 750, 750
 # Loads in spaceship assests
 red_space_ship = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
 blue_space_ship = pygame.image.load(os.path.join("assets", "pixel_ship_blue_small.png"))
-green_space_ship = pygame.image.load(os.path.join("assets", "pixel_ship_green_small.png"))
+green_space_ship = pygame.image.load(os.path.join("assets", "pixel_ship_red_small.png"))
 
 yellow_space_ship = pygame.image.load(os.path.join("assets", "pixel_ship_yellow.png"))
 
