@@ -121,7 +121,7 @@ class Enemy(Ship):
         super().__init__(x, y, health)
         self.color, self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
-        self.counter = 0
+        self.counter = random.randrange(0,20)
         self.direction = "right"
     
     def move(self, velocity):

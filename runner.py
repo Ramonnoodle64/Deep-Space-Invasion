@@ -25,7 +25,7 @@ def main():
     lives = 5
     wave = 1
     
-    main_font = pygame.font.SysFont("comicsans", 55)
+    main_font = pygame.font.SysFont("arial", 40)
     end_font = pygame.font.SysFont("arial", 80)
     wave_font = pygame.font.SysFont("comicsans", 100)
     
@@ -129,7 +129,6 @@ def main():
             wave_length += 1
 
             if level % 10 == 0 and level != 0:
-                player.max_health += 100
                 fire_rate -= 1
                 
             if level % 5 == 0 and level != 0:
