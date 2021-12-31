@@ -23,16 +23,18 @@ def main():
     stop_timer = 0
     level = 0
     lives = 5
+    wave = 1
     
-    main_font = pygame.font.SysFont("arial", 40)
+    main_font = pygame.font.SysFont("comicsans", 55)
     end_font = pygame.font.SysFont("arial", 80)
+    wave_font = pygame.font.SysFont("comicsans", 100)
     
     laser_velocity = 6
     laser_velocity2 = 8
     player_velocity = 4
     fire_rate = 7
     wave_length = 5
-    wave_range = -2000
+    wave_range = -1500
     enemy_velocity = 1
     Enemy.shift = 0
     
@@ -75,8 +77,8 @@ def main():
         player.draw(WIN)
         
         if new_level == True:
-            level_labelA = end_font.render(f"Level {level}", 1, (255,255,255))
-            WIN.blit(level_labelA, (WIDTH/2 - level_labelA.get_width()/2, 350))
+            new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
+            WIN.blit(new_level_label, (WIDTH/2 - new_level_label.get_width()/2, 350))
             
         if lost == True:
             lost_label = end_font.render("You Lost!", 1, (255,255,255))
@@ -95,9 +97,10 @@ def main():
         
         # Pauses if there is a new level, the player has won, or the player has lost 
         if new_level:
-            if stop_timer > FPS*1:
+            if stop_timer > FPS*2:
                 new_level = False
                 stop_timer = 0
+                wave += 1 
             else: 
                 stop_timer += 1
                 if len(player.lasers) != 0:
@@ -120,27 +123,31 @@ def main():
         
         # Spawns enemies and handles difficulty ramp with new waves
         if len(enemies) == 0:
-            level += 1
+            
             player_velocity += .2
             enemy_velocity += .1
             wave_length += 1
 
-            if level % 10 == 0:
+            if level % 10 == 0 and level != 0:
                 player.max_health += 100
                 fire_rate -= 1
                 
-            if level % 5 == 0:
-                new_level = True
-                wave_range -= 1000
+            if level % 5 == 0 and level != 0:
+                wave_range -= 500
                 Enemy.shift += .5
                 player.health = player.max_health
                 if Player.max_cooldown > 10:
                     Player.max_cooldown -= 5
-                
+                    
+            if level % 5 == 0:
+                new_level = True
+            
             for i in range(wave_length):
                 enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
                 enemies.append(enemy)
                 
+            level += 1
+
         # Checks to see if program has been quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
