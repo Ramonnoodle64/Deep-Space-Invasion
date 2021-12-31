@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+pygame.init()
 
 WIDTH, HEIGHT = 750, 750
 
@@ -17,6 +18,9 @@ green_laser = pygame.image.load(os.path.join("assets", "pixel_laser_green.png"))
 blue_laser = pygame.image.load(os.path.join("assets", "pixel_laser_blue.png"))
 yellow_laser = pygame.image.load(os.path.join("assets", "pixel_laser_yellow.png"))
 
+# Loads in audio
+player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
+player_laser_sound.set_volume(.7)
 
 # All objects used
 class Laser:
@@ -69,6 +73,7 @@ class Ship:
             
     def shoot(self):
         if self.cool_down_counter == 0:
+            player_laser_sound.play()
             laser = Laser(self.x, self.y, self.laser_img, self.color)
             self.lasers.append(laser)
             self.cool_down_counter = 1

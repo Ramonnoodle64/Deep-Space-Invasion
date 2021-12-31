@@ -39,6 +39,7 @@ def main():
     wave_range = -1500
     enemy_velocity = 1
     Enemy.shift = 0
+    Player.max_cooldown = 25
     
     enemies = []
     lasers = []
