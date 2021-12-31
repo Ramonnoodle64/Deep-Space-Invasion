@@ -14,5 +14,3 @@ At the start of level 5 ships will begin to swerve making them harder to hit. Ev
 The enemies velocity will also increase with the start of each new level by .1. To account for this, the players velocity will increase by .2.
 Each level will also contain one more enemy in the wave.
 Every 10nth level the enemies fire rate will increase, to account for this, the players cooldown rate will decrease every 5th level until it reaches 1/6 seconds.
-
-### Test
