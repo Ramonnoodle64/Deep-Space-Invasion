@@ -25,8 +25,9 @@ green_boss = pygame.image.load("assets/pixel_green_boss.png")
 
 # Loads in audio
 player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
-player_laser_sound.set_volume(.7)
 enemy_laser_sound = pygame.mixer.Sound("audio/enemy_laser_sound.wav")
+
+player_laser_sound.set_volume(.7)
 enemy_laser_sound.set_volume(1)
 
 # All objects used

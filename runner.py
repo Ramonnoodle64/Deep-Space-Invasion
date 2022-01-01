@@ -10,6 +10,9 @@ WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Fake Space Invaders")
 
+# Loads in assets
+enemy_collide_sound = pygame.mixer.Sound("audio/enemy_collide_sound.wav")
+
 BACKGROUND = pygame.transform.scale(pygame.image.load("assets/background-black.png"), (WIDTH, HEIGHT))
 
 def main(): 
@@ -243,6 +246,7 @@ def main():
                         player.health -= 5
                     else:
                         player.health -= 10
+                enemy_collide_sound.play()
                 enemies.remove(enemy)
                 
             # Player loses a life if an enemy reaches the end of the screen
