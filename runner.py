@@ -233,7 +233,8 @@ def main():
             # Enemies shoot lasers
             if random.randrange(0, fire_rate*60) == 1:
                 laser = enemy.shoot()
-                lasers.append(laser)
+                if laser != None:
+                    lasers.append(laser)
                 
             # Player loses health if they collide with an enemy
             if collide(enemy, player):

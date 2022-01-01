@@ -26,6 +26,8 @@ green_boss = pygame.image.load("assets/pixel_green_boss.png")
 # Loads in audio
 player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
 player_laser_sound.set_volume(.7)
+enemy_laser_sound = pygame.mixer.Sound("audio/enemy_laser_sound.wav")
+enemy_laser_sound.set_volume(1)
 
 # All objects used
 class Laser:
@@ -69,6 +71,9 @@ class Ship:
     
     def get_height(self):
         return self.ship_img.get_height()
+    
+    def off_screen(self):
+        return self.y > 730 or self.y < - self.ship_img.get_height()
     
     def cooldown(self):
         if self.cool_down_counter >= self.max_cooldown:
@@ -158,15 +163,17 @@ class Enemy(Ship):
             self.x -= Enemy.shift
             
     def shoot(self):
-        diff_map = {
-            "red": 60,
-            "green": 50,
-            "blue": 50
-        }
-        loc1 = self.x + self.get_width()/2 - 50
-        loc2 = self.y + self.get_height() - diff_map[self.color]
-        laser = Laser(loc1, loc2, self.laser_img, self.color)
-        return laser
+        if not(self.off_screen()):
+            diff_map = {
+                "red": 60,
+                "green": 50,
+                "blue": 50
+            }
+            enemy_laser_sound.play()
+            loc1 = self.x + self.get_width()/2 - 50
+            loc2 = self.y + self.get_height() - diff_map[self.color]
+            laser = Laser(loc1, loc2, self.laser_img, self.color)
+            return laser
 
 class Boss(Ship):
     shift = 1.3
