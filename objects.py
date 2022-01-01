@@ -179,7 +179,7 @@ class Enemy(Ship):
 class Boss(Ship):
     shift = 1.3
     max_cooldown = 12
-    damage = False
+    damage = True
     
     COLOR_MAP = {
         "red": ("", red_laser),
@@ -221,6 +221,7 @@ class Boss(Ship):
     def shoot(self):
         if self.color == "green":
             if self.cool_down_counter == 0 and self.shoot_now:
+                enemy_laser_sound.play()
                 loc1 = self.x + self.get_width()/2 - 50
                 loc2 = self.y + self.get_height() - 20
                 laser = Laser(loc1, loc2, self.laser_img, self.color)

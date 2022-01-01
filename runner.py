@@ -25,7 +25,7 @@ def main():
     
     colide_cooldown = 0
     stop_timer = 0
-    level = 0
+    level = 8
     lives = 5
     wave = 1
     
@@ -176,7 +176,8 @@ def main():
             if level % 5 == 0 and level != 0:
                 wave_range -= 500
                 Enemy.shift += .5
-                player.health += 20
+                if player.health + 20 < player.max_health:
+                    player.health += 20
                     
                     
             if level % 5 == 0:
