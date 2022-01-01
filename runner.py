@@ -1,8 +1,8 @@
 import pygame
-import os
-import time
 import random
+from cs50 import get_string
 from objects import collide, Player, Enemy, Boss
+
 pygame.font.init()
 
 # Sets up pygame window
@@ -10,8 +10,8 @@ WIDTH, HEIGHT = 750, 750
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Fake Space Invaders")
 
-BACKGROUND = pygame.transform.scale(pygame.image.load(os.path.join("assets", "background-black.png")), (WIDTH, HEIGHT))
-    
+BACKGROUND = pygame.transform.scale(pygame.image.load("assets/background-black.png"), (WIDTH, HEIGHT))
+
 def main(): 
     run = True
     FPS = 60
@@ -20,8 +20,7 @@ def main():
     new_level = False
     pause = False
     
-    boss_cooldown = 0
-    coolide_cooldown = 0
+    colide_cooldown = 0
     stop_timer = 0
     level = 0
     lives = 5
@@ -41,7 +40,7 @@ def main():
     
     fire_rate = 7
     wave_length = 5
-    wave_range = -1000
+    wave_range = -1300
     Enemy.shift = 0
     Player.max_cooldown = 25
     
@@ -59,12 +58,8 @@ def main():
             if laser.off_screen(HEIGHT):
                 lasers.remove(laser)
             elif laser.collision(object):
-                if laser.color == "green":
-                    object.health -= 15
-                elif laser.color == "red":
+                if Player.damage:
                     object.health -= 10
-                else:
-                    object.health -= 5
                 lasers.remove(laser)
     
     def draw_window():
@@ -111,12 +106,12 @@ def main():
             WIN.blit(won_label, (WIDTH/2 - won_label.get_width()/2, 350))
             
         pygame.display.update()
-    
+
     # Main loop
     while run:
         clock.tick(FPS)
         draw_window()
-        
+            
         # Pauses if there is a new level, the player has won, or the player has lost
         if new_level:
             if stop_timer > FPS*2:
@@ -124,9 +119,13 @@ def main():
                 stop_timer = 0
                 wave += 1 
             else: 
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        quit()
                 stop_timer += 1
-                lasers.clear()
-                player.lasers.clear()
+                if len(lasers) != 0 or len(player.lasers) != 0:
+                    lasers.clear()
+                    player.lasers.clear()
                 continue
             
         if lives <= 0 or player.health <= 0:
@@ -157,6 +156,7 @@ def main():
                         quit()
                 continue
             
+            
         if len(enemies) == 0 and len(bosses) == 0:
             
             #Handles difficulty ramp
@@ -168,10 +168,12 @@ def main():
                 fire_rate -= 1
                 player.health = player.max_health
                 Player.max_cooldown -= 5
+                wave_length -= 5
                 
             if level % 5 == 0 and level != 0:
-                wave_range -= 300
+                wave_range -= 500
                 Enemy.shift += .5
+                player.health += 20
                     
                     
             if level % 5 == 0:
@@ -179,7 +181,7 @@ def main():
             
             #Spwans bosses
             if level == 9:
-                boss = Boss(350, -100, "green")
+                boss = Boss(350, -300, "green")
                 bosses.append(boss)
                 
             #Spawns enemies
@@ -201,7 +203,7 @@ def main():
         # Checks to see if program has been quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-               quit()
+                quit()
         
         # Makes the ship respond to keypresses (Move and shoot)
         keys = pygame.key.get_pressed()
@@ -221,9 +223,10 @@ def main():
         if keys[pygame.K_ESCAPE]:
             pause = True
         
+        
         move_lasers(laser_velocity, player)
         
-        # Moves enemies and shoots lasers
+        # Handles enemies
         for enemy in enemies[:]:
             enemy.move(enemy_velocity)
             
@@ -234,10 +237,11 @@ def main():
                 
             # Player loses health if they collide with an enemy
             if collide(enemy, player):
-                if enemy.color == "blue":
-                    player.health -= 5
-                else:
-                    player.health -= 10
+                if Player.damage:
+                    if enemy.color == "blue":
+                        player.health -= 5
+                    else:
+                        player.health -= 10
                 enemies.remove(enemy)
                 
             # Player loses a life if an enemy reaches the end of the screen
@@ -245,7 +249,7 @@ def main():
                 lives -= 1
                 enemies.remove(enemy)
         
-        # Handles boss movement
+        # Handles bosses
         if len(bosses) > 0:
             boss = bosses[0]
             
@@ -257,19 +261,20 @@ def main():
             
             # Player and boss lose health when they collide
             if collide(boss, player):
-                if coolide_cooldown > 30:
-                    coolide_cooldown = 0
+                if colide_cooldown > 30:
+                    colide_cooldown = 0
                     
-                if coolide_cooldown == 0:
-                    coolide_cooldown = 1
+                if colide_cooldown == 0:
+                    colide_cooldown = 1
                     if boss.color == "green":
                         player.health -= 20
                         boss.health -= 10
                 else:
-                    coolide_cooldown += 1
+                    colide_cooldown += 1
 
             if boss.health <= 0:
                 bosses.remove(boss)
+                Boss.damage = False
                     
                 
         player.move_lasers(-laser_velocity_player, enemies, bosses)
@@ -285,6 +290,7 @@ def main_menu():
         title_label = title_font.render("Press enter to begin..", 1, (255,255,255))
         WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
         pygame.display.update()
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -293,6 +299,7 @@ def main_menu():
             main()
             
     pygame.quit()
-    
-main_menu()
+
+if __name__ == "__main__":
+    main_menu()
             

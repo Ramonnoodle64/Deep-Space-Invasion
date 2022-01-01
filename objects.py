@@ -85,6 +85,8 @@ class Ship:
     
                 
 class Player(Ship):
+    damage = True
+    
     def __init__(self, x, y, health=100):
         super().__init__(x, y, health)
         self.ship_img = yellow_space_ship
@@ -112,9 +114,11 @@ class Player(Ship):
                         enemies.remove(enemy)
                         if laser in self.lasers:
                             self.lasers.remove(laser)
+                            
                 for boss in bosses:
                     if laser.collision(boss):
-                        boss.health -= 10
+                        if Boss.damage == True:
+                            boss.health -= 10
                         if laser in self.lasers:
                             self.lasers.remove(laser)
 
@@ -137,13 +141,13 @@ class Enemy(Ship):
         self.color = color
         self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
-        self.counter = random.randrange(0,20)
+        self.counter = random.randrange(0,40)
         self.direction = "right"
     
     def move(self, velocity):
         self.y += velocity
     
-        if self.counter % 20 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
+        if self.counter % 40 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
             self.direction = invert(self.direction)
             
         if self.direction == "right":
@@ -167,6 +171,7 @@ class Enemy(Ship):
 class Boss(Ship):
     shift = 1.3
     max_cooldown = 12
+    damage = False
     
     COLOR_MAP = {
         "red": ("", red_laser),
@@ -193,6 +198,7 @@ class Boss(Ship):
             self.y += velocity
         else:
             self.shoot_now = True
+            Enemy.damage = True
             
         if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
             self.direction = invert(self.direction)
