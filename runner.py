@@ -41,7 +41,7 @@ def main():
     
     fire_rate = 7
     wave_length = 5
-    wave_range = -1500
+    wave_range = -1000
     Enemy.shift = 0
     Player.max_cooldown = 25
     
@@ -93,8 +93,8 @@ def main():
             WIN.blit(pause_label, (WIDTH/2 - pause_label.get_width()/2, 180))
             WIN.blit(lives_label, (20, 10))
             WIN.blit(level_label, (590, 10))
-            continue_label = title_font.render("Press enter to continue ", 1, (220,220,220))
-            continue_label2 = title_font.render("Press esc again to go to Main Menu", 1, (200,200,200))
+            continue_label = title_font.render("Resume: Enter", 1, (220,220,220))
+            continue_label2 = title_font.render("Main Menu: Esc", 1, (200,200,200))
             WIN.blit(continue_label, (WIDTH/2 - continue_label.get_width()/2, 340))
             WIN.blit(continue_label2, (WIDTH/2 - continue_label2.get_width()/2, 400))
             
@@ -170,7 +170,7 @@ def main():
                 Player.max_cooldown -= 5
                 
             if level % 5 == 0 and level != 0:
-                wave_range -= 500
+                wave_range -= 300
                 Enemy.shift += .5
                     
                     
@@ -187,6 +187,14 @@ def main():
                 for i in range(wave_length):
                     enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
                     enemies.append(enemy)
+                    
+                for enemy in enemies:
+                    for enemy2 in enemies:
+                        if enemy != enemy2:
+                            if collide(enemy, enemy2):
+                                enemies.remove(enemy2)
+                                enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
+                                enemies.append(enemy)
             
             level += 1
 

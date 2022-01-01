@@ -5,21 +5,23 @@ pygame.init()
 
 WIDTH, HEIGHT = 750, 750
 
-# Loads in spaceship assests
-red_space_ship = pygame.image.load("test_assets/pixel_red_ship.png")
-blue_space_ship = pygame.image.load("test_assets/pixel_blue_ship_s.png")
-green_space_ship = pygame.image.load("test_assets/pixel_green_ship.png")
+# Loads in enemies and player
+red_space_ship = pygame.image.load("assets/pixel_red_ship.png")
+blue_space_ship = pygame.image.load("assets/pixel_blue_ship_s.png")
+green_space_ship = pygame.image.load("assets/pixel_green_ship.png")
 
-yellow_space_ship = pygame.image.load("test_assets/pixel_player_ship.png")
+yellow_space_ship = pygame.image.load("assets/pixel_player_ship.png")
     
-# Loads in laser and backgroung assets
-red_laser = pygame.image.load("test_assets/pixel_red_laser.png")
-green_laser = pygame.image.load("test_assets/pixel_green_laser.png")
-blue_laser = pygame.image.load("test_assets/pixel_blue_laser.png")
-yellow_laser = pygame.image.load("test_assets/pixel_yellow_laser.png")
+# Loads in lasers
+red_laser = pygame.image.load("assets/pixel_red_laser.png")
+green_laser = pygame.image.load("assets/pixel_green_laser.png")
+blue_laser = pygame.image.load("assets/pixel_blue_laser.png")
+yellow_laser = pygame.image.load("assets/pixel_yellow_laser.png")
+
+green_boss_laser = pygame.image.load("assets/pixel_green_boss_laser.png")
 
 # Loads in bosses
-green_boss = pygame.image.load("test_assets/pixel_green_boss.png")
+green_boss = pygame.image.load("assets/pixel_green_boss.png")
 
 # Loads in audio
 player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
@@ -163,12 +165,12 @@ class Enemy(Ship):
         return laser
 
 class Boss(Ship):
-    shift = 1
+    shift = 1.3
     max_cooldown = 12
     
     COLOR_MAP = {
         "red": ("", red_laser),
-        "green": (green_boss, green_laser),
+        "green": (green_boss, green_boss_laser),
         "blue": ("", blue_laser)
     }
     
@@ -192,7 +194,7 @@ class Boss(Ship):
         else:
             self.shoot_now = True
             
-        if self.counter % 80 == 0 or self.x + self.shift > WIDTH - self.get_width() - 10 or self.x - self.shift < 10:
+        if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
             self.direction = invert(self.direction)
             
         if self.direction == "right":
