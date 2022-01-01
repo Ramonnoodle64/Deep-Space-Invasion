@@ -25,7 +25,7 @@ def main():
     
     colide_cooldown = 0
     stop_timer = 0
-    level = 8
+    level = 0
     lives = 5
     wave = 1
     

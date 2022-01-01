@@ -179,7 +179,7 @@ class Enemy(Ship):
 class Boss(Ship):
     shift = 1.3
     max_cooldown = 12
-    damage = True
+    damage = False
     
     COLOR_MAP = {
         "red": ("", red_laser),
@@ -206,7 +206,7 @@ class Boss(Ship):
             self.y += velocity
         else:
             self.shoot_now = True
-            Enemy.damage = True
+            self.damage = True
             
         if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
             self.direction = invert(self.direction)
