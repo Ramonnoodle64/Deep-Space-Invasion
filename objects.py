@@ -206,7 +206,7 @@ class Boss(Ship):
             self.y += velocity
         else:
             self.shoot_now = True
-            self.damage = True
+            Boss.damage = True
             
         if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
             self.direction = invert(self.direction)
