@@ -2,7 +2,7 @@ import pygame
 import os
 import time
 import random
-from objects import collide, Player, Enemy
+from objects import collide, Player, Enemy, Boss
 pygame.font.init()
 
 # Sets up pygame window
@@ -20,8 +20,10 @@ def main():
     new_level = False
     pause = False
     
+    boss_cooldown = 0
+    coolide_cooldown = 0
     stop_timer = 0
-    level = 0
+    level = 9
     lives = 5
     wave = 1
     
@@ -34,17 +36,20 @@ def main():
     laser_velocity = 6
     laser_velocity_player = 8
     player_velocity = 4
+    enemy_velocity = 1
+    boss_velocity = .5
+    
     fire_rate = 7
     wave_length = 5
     wave_range = -1500
-    enemy_velocity = 1
     Enemy.shift = 0
     Player.max_cooldown = 25
     
+    bosses = []
     enemies = []
     lasers = []
     
-    player = Player(300, 620)
+    player = Player(300, 600)
     
     clock = pygame.time.Clock()
     
@@ -73,6 +78,9 @@ def main():
         
         for enemy in enemies:
             enemy.draw(WIN)
+            
+        for boss in bosses:
+            boss.draw(WIN)
             
         for laser in lasers:
             laser.draw(WIN)
@@ -117,8 +125,8 @@ def main():
                 wave += 1 
             else: 
                 stop_timer += 1
-                if len(player.lasers) != 0:
-                    player.lasers.clear()
+                lasers.clear()
+                player.lasers.clear()
                 continue
             
         if lives <= 0 or player.health <= 0:
@@ -149,9 +157,9 @@ def main():
                         quit()
                 continue
             
-        # Spawns enemies and handles difficulty ramp with new waves
-        if len(enemies) == 0:
+        if len(enemies) == 0 and len(bosses) == 0:
             
+            #Handles difficulty ramp
             player_velocity += .2
             enemy_velocity += .1
             wave_length += 1
@@ -159,20 +167,27 @@ def main():
             if level % 10 == 0 and level != 0:
                 fire_rate -= 1
                 player.health = player.max_health
+                Player.max_cooldown -= 5
                 
             if level % 5 == 0 and level != 0:
                 wave_range -= 500
                 Enemy.shift += .5
-                if Player.max_cooldown > 10:
-                    Player.max_cooldown -= 5
+                    
                     
             if level % 5 == 0:
                 new_level = True
             
-            for i in range(wave_length):
-                enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
-                enemies.append(enemy)
+            #Spwans bosses
+            if level == 9:
+                boss = Boss(350, -100, "green")
+                bosses.append(boss)
                 
+            #Spawns enemies
+            else:
+                for i in range(wave_length):
+                    enemy = Enemy(random.randrange(100, WIDTH-100), random.randrange(wave_range, -100), random.choice(["red", "blue", "green"]))
+                    enemies.append(enemy)
+            
             level += 1
 
         # Checks to see if program has been quit
@@ -208,6 +223,7 @@ def main():
             if random.randrange(0, fire_rate*60) == 1:
                 laser = enemy.shoot()
                 lasers.append(laser)
+                
             # Player loses health if they collide with an enemy
             if collide(enemy, player):
                 if enemy.color == "blue":
@@ -215,15 +231,40 @@ def main():
                 else:
                     player.health -= 10
                 enemies.remove(enemy)
-            # Enemies disppear when they are hit
-            if enemy.health <= 0:
-                enemies.remove(enemy)
+                
             # Player loses a life if an enemy reaches the end of the screen
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
                 enemies.remove(enemy)
+        
+        # Handles boss movement
+        if len(bosses) > 0:
+            boss = bosses[0]
+            
+            boss.move(boss_velocity)
+            boss.cooldown()
+            laser = boss.shoot()
+            if laser != None:
+                lasers.append(laser)
+            
+            # Player and boss lose health when they collide
+            if collide(boss, player):
+                if coolide_cooldown > 30:
+                    coolide_cooldown = 0
+                    
+                if coolide_cooldown == 0:
+                    coolide_cooldown = 1
+                    if boss.color == "green":
+                        player.health -= 20
+                        boss.health -= 10
+                else:
+                    coolide_cooldown += 1
+
+            if boss.health <= 0:
+                bosses.remove(boss)
+                    
                 
-        player.move_lasers(-laser_velocity_player, enemies)
+        player.move_lasers(-laser_velocity_player, enemies, bosses)
         
         
         
