@@ -64,6 +64,9 @@ class Ship:
         
         self.cool_down_counter = 0
     
+    def off_screen(self, height):
+        return self.y > height or self.y < - self.img.get_height()
+    
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
     

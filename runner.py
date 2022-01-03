@@ -1,6 +1,6 @@
 import pygame
 import random
-from cs50 import get_string
+import sys
 from objects import collide, Player, Enemy, Boss
 
 pygame.font.init()
@@ -124,7 +124,7 @@ def main():
             else: 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        quit()
+                        sys.exit()
                 stop_timer += 1
                 if len(lasers) != 0 or len(player.lasers) != 0:
                     lasers.clear()
@@ -156,7 +156,7 @@ def main():
                 stop_timer += 1
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        quit()
+                        sys.exit()
                 continue
             
             
@@ -207,7 +207,7 @@ def main():
         # Checks to see if program has been quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                quit()
+                sys.exit()
         
         # Makes the ship respond to keypresses (Move and shoot)
         keys = pygame.key.get_pressed()
