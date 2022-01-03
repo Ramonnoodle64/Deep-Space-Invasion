@@ -26,9 +26,11 @@ green_boss = pygame.image.load("assets/pixel_green_boss.png")
 # Loads in audio
 player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
 enemy_laser_sound = pygame.mixer.Sound("audio/enemy_laser_sound.wav")
+boss_laser_sound = pygame.mixer.Sound("audio/boss_laser_sound.wav")
 
-player_laser_sound.set_volume(.7)
-enemy_laser_sound.set_volume(1)
+player_laser_sound.set_volume(.8)
+boss_laser_sound.set_volume(.3)
+
 
 # All objects used
 class Laser:
@@ -224,7 +226,7 @@ class Boss(Ship):
     def shoot(self):
         if self.color == "green":
             if self.cool_down_counter == 0 and self.shoot_now:
-                enemy_laser_sound.play()
+                boss_laser_sound.play()
                 loc1 = self.x + self.get_width()/2 - 50
                 loc2 = self.y + self.get_height() - 20
                 laser = Laser(loc1, loc2, self.laser_img, self.color)
