@@ -30,7 +30,7 @@ enemy_laser_sound = pygame.mixer.Sound("audio/enemy_laser_sound.wav")
 boss_laser_sound = pygame.mixer.Sound("audio/boss_laser_sound.wav")
 
 player_laser_sound.set_volume(.8)
-boss_laser_sound.set_volume(.3)
+boss_laser_sound.set_volume(.2)
 
 
 # Objects used in game

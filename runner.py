@@ -169,7 +169,7 @@ def main():
                 else:  
                     if event.type == pygame.QUIT:
                         sys.exit()
-                    continue
+            continue
             
             
         if len(enemies) == 0 and len(bosses) == 0:
