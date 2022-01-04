@@ -183,7 +183,7 @@ class Enemy(Ship):
             return laser
 
 class Boss(Ship):
-    shift = 1.3
+    shift = 1.5
     max_cooldown = 12
     damage = False
     
@@ -215,7 +215,7 @@ class Boss(Ship):
             Boss.damage = True
             
         if self.color == "green":
-            if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
+            if self.x + self.shift > WIDTH - self.get_width() - 100 or self.x - self.shift < 100:
                 self.direction = invert(self.direction)
         elif self.color == "red":
             if self.x + self.shift > WIDTH - self.get_width() - 70 or self.x - self.shift < 70:
@@ -234,7 +234,7 @@ class Boss(Ship):
                 loc_y = self.y + self.get_height() - 20
                 laser = Laser(loc_x, loc_y, self.laser_img, self.color)
                 self.cool_down_counter += 1
-                return (laser)
+                return [laser]
             
         if self.color == "red":
             if self.cool_down_counter == 0 and self.shoot_now:
@@ -292,12 +292,12 @@ class Button:
         return tuple(nc)
 
 class Display():
+    counter = 0
+    
     def __init__(self, x, y, label):
         self.x = x
-        self.origin_x = x
         self.y = y
         self.label = label
-        self.counter = 0
         self.slide_time = 0
 
     def draw(self, window):
@@ -310,13 +310,9 @@ class Display():
             window.blit(self.label, (self.x, self.y))
 
         else:
-            if self.counter > time - self.slide_time*2:
-                if self.x < WIDTH-1:
+            if self.counter > time - self.slide_time*2.5:
                     self.x += velocity
                     window.blit(self.label, (self.x, self.y))
-                else: 
-                    self.x = self.origin_x
-                    self.counter = 0
             else:
                 window.blit(self.label, (self.x, self.y))
                 self.counter += 1

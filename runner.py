@@ -23,12 +23,13 @@ def main():
     lost = False
     won = False
     new_level = False
+    boss_level = False
     pause = False
     
     # Counter variables
     colide_cooldown = 0
     stop_timer = 0
-    level = 0
+    level = 9
     lives = 5
     wave = 1
     
@@ -74,12 +75,19 @@ def main():
                     object.health -= 10
                 lasers.remove(laser)
     
-    # Defines buttons        
+    # Defines buttons and displays objects
     resume_label = title_font.render("Resume", 1, (220,220,220))
     menu_label = title_font.render("Main Menu", 1, (200,200,200))
     
     resume_button = Button((150, 380, 160, 80), (60,60,60), resume_label)
     main_menu_button = Button((400, 380, 220, 80), (60,60,60), menu_label)
+    
+    # Defines text displays
+    new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
+    boss_level_label = wave_font.render(f"Boss Level", 1, (255,255,255))
+    
+    new_level_display = Display(-new_level_label.get_width(), 350, new_level_label)
+    boss_level_display = Display(-boss_level_label.get_width(), 350, boss_level_label)
     
     # Displays everything on screen
     def draw_window():
@@ -102,11 +110,11 @@ def main():
         player.draw(WIN)
             
         if new_level == True:
-            new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
-            new_level_display = Display(WIDTH/2 - new_level_label.get_width()/2, 350, new_level_label)
-            new_level_display.draw(WIN)
-            #new_level_display.slide_draw(WIN, 50, FPS*3)
-
+            new_level_display.slide_draw(WIN, 25, FPS*3)
+            
+        if boss_level == True:
+            boss_level_display.slide_draw(WIN, 25, FPS*3)
+            
         if lost == True:
             lost_label = end_font.render("You Lost!", 1, (255,255,255))
             WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
@@ -133,11 +141,16 @@ def main():
         draw_window()
         
         # Pauses if there is a new level, the player has won, or the player has lost
-        if new_level:
+        if new_level or boss_level:
             if stop_timer > FPS*3:
                 new_level = False
+                boss_level = False
                 stop_timer = 0
                 wave += 1 
+                
+                Display.counter = 0
+                new_level_display.x = -new_level_label.get_width()
+                boss_level_display.x = -boss_level_label.get_width()
             else: 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -201,11 +214,13 @@ def main():
             if level == 9:
                 boss = Boss(350, -300, "green")
                 bosses.append(boss)
+                boss_level = True
             elif level == 19:
                 boss = Boss(350, -300, "red", 400)
                 Boss.shift = 1.7
                 Boss.max_cooldown = 6
                 bosses.append(boss)
+                boss_level = True
                 
             #Spawns enemies
             else:
