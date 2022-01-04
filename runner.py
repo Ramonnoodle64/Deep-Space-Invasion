@@ -1,7 +1,7 @@
 import pygame
 import random
 import sys
-from objects import collide, Player, Enemy, Boss, Button
+from objects import collide, Player, Enemy, Boss, Button, Display
 
 pygame.font.init()
 
@@ -26,7 +26,7 @@ def main():
     # Counter variables
     colide_cooldown = 0
     stop_timer = 0
-    level = 19
+    level = 0
     lives = 5
     wave = 1
     
@@ -100,8 +100,10 @@ def main():
             
         if new_level == True:
             new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
-            WIN.blit(new_level_label, (WIDTH/2 - new_level_label.get_width()/2, 350))
-            
+            new_level_display = Display(WIDTH/2 - new_level_label.get_width()/2, 350, new_level_label)
+            new_level_display.draw(WIN)
+            #new_level_display.slide_draw(WIN, 50, FPS*3)
+
         if lost == True:
             lost_label = end_font.render("You Lost!", 1, (255,255,255))
             WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
@@ -129,7 +131,7 @@ def main():
         
         # Pauses if there is a new level, the player has won, or the player has lost
         if new_level:
-            if stop_timer > FPS*2:
+            if stop_timer > FPS*3:
                 new_level = False
                 stop_timer = 0
                 wave += 1 
