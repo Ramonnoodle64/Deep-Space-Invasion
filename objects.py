@@ -22,6 +22,7 @@ green_boss_laser = pygame.image.load("assets/pixel_green_boss_laser.png")
 
 # Loads in bosses
 green_boss = pygame.image.load("assets/pixel_green_boss.png")
+red_boss = pygame.image.load("assets/pixel_red_boss.png")
 
 # Loads in audio
 player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
@@ -32,7 +33,7 @@ player_laser_sound.set_volume(.8)
 boss_laser_sound.set_volume(.3)
 
 
-# All objects used
+# Objects used in game
 class Laser:
     def __init__(self, x, y, img, color):
         self.x = x
@@ -187,7 +188,7 @@ class Boss(Ship):
     damage = False
     
     COLOR_MAP = {
-        "red": ("", red_laser),
+        "red": (red_boss, red_laser),
         "green": (green_boss, green_boss_laser),
         "blue": ("", blue_laser)
     }
@@ -213,31 +214,84 @@ class Boss(Ship):
             self.shoot_now = True
             Boss.damage = True
             
-        if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
-            self.direction = invert(self.direction)
+        if self.color == "green":
+            if self.x + self.shift > WIDTH - self.get_width() - 130 or self.x - self.shift < 130:
+                self.direction = invert(self.direction)
+        elif self.color == "red":
+            if self.x + self.shift > WIDTH - self.get_width() - 70 or self.x - self.shift < 70:
+                self.direction = invert(self.direction)
             
         if self.direction == "right":
-            self.counter += .5
             self.x += self.shift
         else:
-            self.counter -= .5
             self.x -= self.shift
     
     def shoot(self):
         if self.color == "green":
             if self.cool_down_counter == 0 and self.shoot_now:
                 boss_laser_sound.play()
-                loc1 = self.x + self.get_width()/2 - 50
-                loc2 = self.y + self.get_height() - 20
-                laser = Laser(loc1, loc2, self.laser_img, self.color)
+                loc_x = self.x + self.get_width()/2 - 50
+                loc_y = self.y + self.get_height() - 20
+                laser = Laser(loc_x, loc_y, self.laser_img, self.color)
                 self.cool_down_counter += 1
-                return laser
+                return (laser)
+            
+        if self.color == "red":
+            if self.cool_down_counter == 0 and self.shoot_now:
+                boss_laser_sound.play()
+                
+                loc_y = self.y + self.get_height() - 50
+                loc_y1 = self.y + self.get_height() - 60
+                loc_x1 = self.x + self.get_width()/2 + 20
+                loc_x2 = self.x + self.get_width()/2 - 50
+                loc_x3 = self.x + self.get_width()/2 - 120
+                
+                laser1 = Laser(loc_x1, loc_y, self.laser_img, self.color)
+                laser2 = Laser(loc_x2, loc_y1, self.laser_img, self.color)
+                laser3 = Laser(loc_x3, loc_y, self.laser_img, self.color)
+                self.cool_down_counter += 1
+                return (laser1, laser2, laser3)
     
     def healthbar(self, window):
-        if self.color == "green":
-            pygame.draw.rect(window, (240,90,0), (self.x, self.y - 10, self.ship_img.get_width(), 15))
-            pygame.draw.rect(window, (40,255,0), (self.x, self.y - 10, self.ship_img.get_width() * (self.health/self.max_health), 15))
+        pygame.draw.rect(window, (240,90,0), (self.x, self.y - 10, self.ship_img.get_width(), 15))
+        pygame.draw.rect(window, (40,255,0), (self.x, self.y - 10, self.ship_img.get_width() * (self.health/self.max_health), 15))
     
+# GUI objects
+class Button:
+    def __init__(self, rect, color, label):
+        self = self
+        self.color = color
+        self.rect = pygame.Rect(rect)
+        self.label = label
+    
+    def draw(self, window):
+        back_color = self.shade_color(self.color, 30)
+        pygame.draw.rect(window, back_color, (self.rect[0], self.rect[1], self.rect[2] + 10, self.rect[3] + 10))
+        if self.hover():
+            pygame.draw.rect(window, self.shade_color(self.color, 10), self.rect)
+        else:
+            pygame.draw.rect(window, self.color, self.rect)
+        window.blit(self.label, (self.rect[0] + 10, self.rect[1] + 10))
+        
+    def click(self, event):
+        pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if pygame.mouse.get_pressed()[0] == 1:
+                if self.rect.collidepoint(pos):
+                    return True
+
+    def hover(self):
+        pos = pygame.mouse.get_pos()
+        if self.rect.collidepoint(pos):
+            return True
+    
+    def shade_color(self, color, shade):
+        nc = [0, 0, 0]
+        nc[0] = color[0] - shade
+        nc[1] = color[1] - shade
+        nc[2] = color[2] - shade
+        return tuple(nc)
+
 
 # Assistive functions
 def invert(value):

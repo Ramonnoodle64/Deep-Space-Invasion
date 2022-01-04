@@ -1,7 +1,7 @@
 import pygame
 import random
 import sys
-from objects import collide, Player, Enemy, Boss
+from objects import collide, Player, Enemy, Boss, Button
 
 pygame.font.init()
 
@@ -16,37 +16,42 @@ enemy_collide_sound = pygame.mixer.Sound("audio/enemy_collide_sound.wav")
 BACKGROUND = pygame.transform.scale(pygame.image.load("assets/background-black.png"), (WIDTH, HEIGHT))
 
 def main(): 
-    run = True
     FPS = 60
+    run = True
     lost = False
     won = False
     new_level = False
     pause = False
     
+    # Counter variables
     colide_cooldown = 0
     stop_timer = 0
-    level = 9
+    level = 19
     lives = 5
     wave = 1
     
-    main_font = pygame.font.SysFont("arial", 40)
+    # All fonts
+    display_font = pygame.font.SysFont("arial", 40)
     end_font = pygame.font.SysFont("arial", 80)
     title_font_large = pygame.font.SysFont("comicsans", 70)
     title_font = pygame.font.SysFont("comicsans", 40)
     wave_font = pygame.font.SysFont("comicsans", 100)
     
+    # Velocitys
     laser_velocity = 6
     laser_velocity_player = 8
     player_velocity = 4
     enemy_velocity = 1
     boss_velocity = .5
     
+    # Progressive values
     fire_rate = 7
     wave_length = 5
     wave_range = -1300
     Enemy.shift = 0
     Player.max_cooldown = 25
     
+    # Objects lists
     bosses = []
     enemies = []
     lasers = []
@@ -55,6 +60,7 @@ def main():
     
     clock = pygame.time.Clock()
     
+    # Moves enemy lasers and checks for collisions
     def move_lasers(velocity, object):
         for laser in lasers:
             laser.move(velocity)
@@ -65,12 +71,19 @@ def main():
                     object.health -= 10
                 lasers.remove(laser)
     
+    # Defines buttons        
+    resume_label = title_font.render("Resume", 1, (220,220,220))
+    menu_label = title_font.render("Main Menu", 1, (200,200,200))
+    
+    resume_button = Button((150, 380, 160, 80), (60,60,60), resume_label)
+    main_menu_button = Button((400, 380, 220, 80), (60,60,60), menu_label)
+    
+    # Displays everything on screen
     def draw_window():
-        # Displays everything on screen
         WIN.blit(BACKGROUND, (0,0))
         
-        lives_label = main_font.render(f"Lives- {lives}", 1, (240,240,240))
-        level_label = main_font.render(f"Level {level}", 1, (240,240,240))
+        lives_label = display_font.render(f"Lives- {lives}", 1, (240,240,240))
+        level_label = display_font.render(f"Level {level}", 1, (240,240,240))
         WIN.blit(lives_label, (20, 10))
         WIN.blit(level_label, (590, 10))
         
@@ -84,17 +97,6 @@ def main():
             laser.draw(WIN)
             
         player.draw(WIN)
-        
-        if pause == True:
-            WIN.blit(BACKGROUND, (0,0))
-            pause_label = title_font_large.render("PAUSE", 1, (250,250,250))
-            WIN.blit(pause_label, (WIDTH/2 - pause_label.get_width()/2, 180))
-            WIN.blit(lives_label, (20, 10))
-            WIN.blit(level_label, (590, 10))
-            continue_label = title_font.render("Resume: Enter", 1, (220,220,220))
-            continue_label2 = title_font.render("Main Menu: Esc", 1, (200,200,200))
-            WIN.blit(continue_label, (WIDTH/2 - continue_label.get_width()/2, 340))
-            WIN.blit(continue_label2, (WIDTH/2 - continue_label2.get_width()/2, 400))
             
         if new_level == True:
             new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
@@ -107,6 +109,16 @@ def main():
         if won == True:
             won_label = end_font.render("You Won!!", 1, (255,255,255))
             WIN.blit(won_label, (WIDTH/2 - won_label.get_width()/2, 350))
+        
+        if pause == True:
+            WIN.blit(BACKGROUND, (0,0))
+            pause_label = title_font_large.render("PAUSE", 1, (250,250,250))
+            WIN.blit(pause_label, (WIDTH/2 - pause_label.get_width()/2, 180))
+            WIN.blit(lives_label, (20, 10))
+            WIN.blit(level_label, (590, 10))
+            
+            resume_button.draw(WIN)
+            main_menu_button.draw(WIN)
             
         pygame.display.update()
 
@@ -114,7 +126,7 @@ def main():
     while run:
         clock.tick(FPS)
         draw_window()
-            
+        
         # Pauses if there is a new level, the player has won, or the player has lost
         if new_level:
             if stop_timer > FPS*2:
@@ -145,19 +157,16 @@ def main():
             else: 
                 continue
         
-        if pause:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_RETURN]:
-                pause = False
-                stop_timer = 0
-            elif keys[pygame.K_ESCAPE] and stop_timer > 30:
-                run = False
-            else:
-                stop_timer += 1
-                for event in pygame.event.get():
+        if pause:   
+            for event in pygame.event.get():
+                if resume_button.click(event):
+                    pause = False
+                if main_menu_button.click(event):
+                    run = False
+                else:  
                     if event.type == pygame.QUIT:
                         sys.exit()
-                continue
+                    continue
             
             
         if len(enemies) == 0 and len(bosses) == 0:
@@ -186,6 +195,11 @@ def main():
             #Spwans bosses
             if level == 9:
                 boss = Boss(350, -300, "green")
+                bosses.append(boss)
+            elif level == 19:
+                boss = Boss(350, -300, "red", 400)
+                Boss.shift = 1.7
+                Boss.max_cooldown = 6
                 bosses.append(boss)
                 
             #Spawns enemies
@@ -261,9 +275,10 @@ def main():
             
             boss.move(boss_velocity)
             boss.cooldown()
-            laser = boss.shoot()
-            if laser != None:
-                lasers.append(laser)
+            lasers_in = boss.shoot()
+            if lasers_in != None:
+                for laser in lasers_in:
+                    lasers.append(laser)
             
             # Player and boss lose health when they collide
             if collide(boss, player):
