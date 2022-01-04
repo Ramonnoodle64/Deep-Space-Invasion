@@ -259,7 +259,6 @@ class Boss(Ship):
 # GUI objects
 class Button:
     def __init__(self, rect, color, label):
-        self = self
         self.color = color
         self.rect = pygame.Rect(rect)
         self.label = label
@@ -292,6 +291,36 @@ class Button:
         nc[2] = color[2] - shade
         return tuple(nc)
 
+class Display():
+    def __init__(self, x, y, label):
+        self.x = x
+        self.origin_x = x
+        self.y = y
+        self.label = label
+        self.counter = 0
+        self.slide_time = 0
+
+    def draw(self, window):
+        window.blit(self.label, (self.x, self.y))
+
+    def slide_draw(self, window, velocity, time):
+        if self.x < WIDTH/2 - self.label.get_width()/2:
+            self.slide_time += 1
+            self.x += velocity  
+            window.blit(self.label, (self.x, self.y))
+
+        else:
+            if self.counter > time - self.slide_time*2:
+                if self.x < WIDTH-1:
+                    self.x += velocity
+                    window.blit(self.label, (self.x, self.y))
+                else: 
+                    self.x = self.origin_x
+                    self.counter = 0
+            else:
+                window.blit(self.label, (self.x, self.y))
+                self.counter += 1
+        
 
 # Assistive functions
 def invert(value):
