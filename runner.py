@@ -12,6 +12,8 @@ pygame.display.set_caption("Fake Space Invaders")
 
 # Loads in assets
 enemy_collide_sound = pygame.mixer.Sound("audio/enemy_collide_sound.wav")
+player_impact_sound = pygame.mixer.Sound("audio/player_impact_sound.wav")
+player_impact_sound.set_volume(.4)
 
 BACKGROUND = pygame.transform.scale(pygame.image.load("assets/background-black.png"), (WIDTH, HEIGHT))
 
@@ -26,7 +28,7 @@ def main():
     # Counter variables
     colide_cooldown = 0
     stop_timer = 0
-    level = 19
+    level = 0
     lives = 5
     wave = 1
     
@@ -67,6 +69,7 @@ def main():
             if laser.off_screen(HEIGHT):
                 lasers.remove(laser)
             elif laser.collision(object):
+                player_impact_sound.play()
                 if Player.damage:
                     object.health -= 10
                 lasers.remove(laser)
