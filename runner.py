@@ -29,7 +29,7 @@ def main():
     # Counter variables
     colide_cooldown = 0
     stop_timer = 0
-    level = 9
+    level = 0
     lives = 5
     wave = 1
     
