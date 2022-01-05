@@ -29,7 +29,7 @@ def main():
     # Counter variables
     colide_cooldown = 0
     stop_timer = 0
-    level = 0
+    level = 9
     lives = 5
     wave = 1
     
@@ -41,7 +41,7 @@ def main():
     wave_font = pygame.font.SysFont("comicsans", 100)
     
     # Velocitys
-    laser_velocity_enemy = 6
+    laser_velocity = 6
     laser_velocity_player = 8
     player_velocity = 4
     enemy_velocity = 1
@@ -64,23 +64,23 @@ def main():
     clock = pygame.time.Clock()
     
     # Moves enemy lasers and checks for collisions
-    def move_lasers():
+    def move_lasers(velocity, object):
         for laser in lasers:
-            laser.move()
+            laser.move(velocity)
             if laser.off_screen(HEIGHT):
                 lasers.remove(laser)
             elif laser.collision(object):
                 player_impact_sound.play()
                 if Player.damage:
-                    Player.health -= 10
+                    object.health -= 10
                 lasers.remove(laser)
     
-    # Defines buttons
+    # Defines buttons and displays objects
     resume_label = title_font.render("Resume", 1, (220,220,220))
     menu_label = title_font.render("Main Menu", 1, (200,200,200))
     
-    resume_button = Button(150, 380, (60,60,60), resume_label)
-    main_menu_button = Button(400, 380, (60,60,60), menu_label)
+    resume_button = Button((150, 380, 160, 80), (60,60,60), resume_label)
+    main_menu_button = Button((400, 380, 220, 80), (60,60,60), menu_label)
     
     # Defines text displays
     new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
@@ -165,7 +165,7 @@ def main():
             lost = True 
             stop_timer += 1
             
-        if len(enemies) == 0 and len(bosses) == 0 and level == 30:
+        if len(enemies) == 0 and level == 30:
             won = True
             stop_timer += 1
         
@@ -221,12 +221,6 @@ def main():
                 Boss.max_cooldown = 6
                 bosses.append(boss)
                 boss_level = True
-            elif level == 29:
-                boss = Boss(100, -250, "gold", 800)
-                Boss.shift = 1.5
-                Boss.max_cooldown = 2
-                bosses.append(boss)
-                boss_level = True
                 
             #Spawns enemies
             else:
@@ -261,14 +255,14 @@ def main():
             player.x -= player_velocity
         
         if keys[pygame.K_SPACE]:
-            player.shoot(-laser_velocity_player)
+            player.shoot()
         
         # Returns to main menu if esc is pressed
         if keys[pygame.K_ESCAPE]:
             pause = True
         
         
-        move_lasers()
+        move_lasers(laser_velocity, player)
         
         # Handles enemies
         for enemy in enemies[:]:
@@ -276,7 +270,7 @@ def main():
             
             # Enemies shoot lasers
             if random.randrange(0, fire_rate*60) == 1:
-                laser = enemy.shoot(laser_velocity_enemy)
+                laser = enemy.shoot()
                 if laser != None:
                     lasers.append(laser)
                 
@@ -300,23 +294,22 @@ def main():
             boss = bosses[0]
             
             boss.move(boss_velocity)
-            
-            lasers_in = boss.shoot(laser_velocity_enemy)
-            
+            boss.cooldown()
+            lasers_in = boss.shoot()
             if lasers_in != None:
                 for laser in lasers_in:
                     lasers.append(laser)
-                    
+            
             # Player and boss lose health when they collide
             if collide(boss, player):
                 if colide_cooldown > 30:
                     colide_cooldown = 0
                     
                 if colide_cooldown == 0:
-                    enemy_collide_sound.play()
                     colide_cooldown = 1
-                    player.health -= 20
-                    boss.health -= 10
+                    if boss.color == "green":
+                        player.health -= 20
+                        boss.health -= 10
                 else:
                     colide_cooldown += 1
 
@@ -325,7 +318,7 @@ def main():
                 Boss.damage = False
                     
                 
-        player.move_lasers(enemies, bosses)
+        player.move_lasers(-laser_velocity_player, enemies, bosses)
         
         
         
