@@ -153,15 +153,15 @@ class Enemy(Ship):
         self.ship_img, self.laser_img = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.counter = random.randrange(0,40)
-        self.direction = "right"
+        self.direction = True
     
     def move(self, velocity):
         self.y += velocity
     
         if self.counter % 40 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
-            self.direction = invert(self.direction)
+            self.direction = not(self.direction)
             
-        if self.direction == "right":
+        if self.direction == True:
             self.counter += .5
             self.x += Enemy.shift
         else:
@@ -199,7 +199,7 @@ class Boss(Ship):
         self.mask = pygame.mask.from_surface(self.ship_img)
         self.max_health = health
         self.counter = 0
-        self.direction = "right"
+        self.direction = True
         self.shoot_now = False
     
     def draw(self, window):
@@ -215,12 +215,12 @@ class Boss(Ship):
             
         if self.color == "green":
             if self.x + self.shift > WIDTH - self.get_width() - 100 or self.x - self.shift < 100:
-                self.direction = invert(self.direction)
+                self.direction = not(self.direction)
         elif self.color == "red":
             if self.x + self.shift > WIDTH - self.get_width() - 70 or self.x - self.shift < 70:
-                self.direction = invert(self.direction)
+                self.direction = not(self.direction)
             
-        if self.direction == "right":
+        if self.direction == True:
             self.x += self.shift
         else:
             self.x -= self.shift
@@ -309,22 +309,17 @@ class Display():
             window.blit(self.label, (self.x, self.y))
 
         else:
-            if self.counter > time - self.slide_time*2.5:
+            if Display.counter > time - self.slide_time*2.5:
                     self.x += velocity
                     window.blit(self.label, (self.x, self.y))
             else:
                 window.blit(self.label, (self.x, self.y))
-                self.counter += 1
+                Display.counter += 1
         
 
 # Assistive functions
-def invert(value):
-    if value == "right":
-        return "left"
-    else:
-        return "right"
-
 def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (int(offset_x), int(offset_y))) != None
+

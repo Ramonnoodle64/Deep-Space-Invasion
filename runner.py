@@ -1,7 +1,7 @@
 import pygame
 import random
 import sys
-from objects import collide, Player, Enemy, Boss, Button, Display
+from objects import collide, wait, Player, Enemy, Boss, Button, Display
 
 pygame.font.init()
 
@@ -35,10 +35,10 @@ def main():
     
     # All fonts
     display_font = pygame.font.SysFont("arial", 40)
-    end_font = pygame.font.SysFont("arial", 80)
+    end_font = pygame.font.SysFont("courier", 80)
     title_font_large = pygame.font.SysFont("comicsans", 70)
     title_font = pygame.font.SysFont("comicsans", 40)
-    wave_font = pygame.font.SysFont("comicsans", 100)
+    wave_font = pygame.font.SysFont("courier", 100)
     
     # Velocitys
     laser_velocity = 6
@@ -147,7 +147,9 @@ def main():
                 boss_level = False
                 stop_timer = 0
                 wave += 1 
-                
+                new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
+                new_level_display.label = new_level_label
+
                 Display.counter = 0
                 new_level_display.x = -new_level_label.get_width()
                 boss_level_display.x = -boss_level_label.get_width()
