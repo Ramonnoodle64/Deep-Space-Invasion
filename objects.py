@@ -257,9 +257,9 @@ class Boss(Ship):
     
 # GUI objects
 class Button:
-    def __init__(self, rect, color, label):
+    def __init__(self, pos, color, label):
         self.color = color
-        self.rect = pygame.Rect(rect)
+        self.rect = pygame.Rect(pos[0], pos[1], label.get_width() + 20, label.get_height() + 20)
         self.label = label
     
     def draw(self, window):
@@ -292,7 +292,7 @@ class Button:
 
 class Display():
     counter = 0
-    
+
     def __init__(self, x, y, label):
         self.x = x
         self.y = y
@@ -315,7 +315,11 @@ class Display():
             else:
                 window.blit(self.label, (self.x, self.y))
                 Display.counter += 1
-        
+
+    def set_origin(self):
+        Display.counter = 0
+        self.x = -self.label.get_width()
+        self.slide_time = 0
 
 # Assistive functions
 def collide(obj1, obj2):

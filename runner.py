@@ -1,7 +1,7 @@
 import pygame
 import random
 import sys
-from objects import collide, wait, Player, Enemy, Boss, Button, Display
+from objects import collide, Player, Enemy, Boss, Button, Display
 
 pygame.font.init()
 
@@ -41,9 +41,9 @@ def main():
     wave_font = pygame.font.SysFont("courier", 100)
     
     # Velocitys
-    laser_velocity = 6
+    laser_velocity = 7
     laser_velocity_player = 8
-    player_velocity = 4
+    player_velocity = 5
     enemy_velocity = 1
     boss_velocity = .5
     
@@ -79,8 +79,8 @@ def main():
     resume_label = title_font.render("Resume", 1, (220,220,220))
     menu_label = title_font.render("Main Menu", 1, (200,200,200))
     
-    resume_button = Button((150, 380, 160, 80), (60,60,60), resume_label)
-    main_menu_button = Button((400, 380, 220, 80), (60,60,60), menu_label)
+    resume_button = Button((150, 380), (60,60,60), resume_label)
+    main_menu_button = Button((400, 380), (60,60,60), menu_label)
     
     # Defines text displays
     new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
@@ -150,9 +150,8 @@ def main():
                 new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
                 new_level_display.label = new_level_label
 
-                Display.counter = 0
-                new_level_display.x = -new_level_label.get_width()
-                boss_level_display.x = -boss_level_label.get_width()
+                new_level_display.set_origin()
+                boss_level_display.set_origin()
             else: 
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -192,7 +191,7 @@ def main():
         if len(enemies) == 0 and len(bosses) == 0:
             
             #Handles difficulty ramp
-            player_velocity += .2
+            player_velocity += .15
             enemy_velocity += .1
             wave_length += 1
 
@@ -326,20 +325,23 @@ def main():
         
                
 def main_menu():
-    title_font = pygame.font.SysFont("comicsans", 50)
+    title_font = pygame.font.SysFont("Courier", 60)
+    button_font = pygame.font.SysFont("comicsans", 60)
     run = True
     while run:
         WIN.blit(BACKGROUND, (0,0))
-        title_label = title_font.render("Press enter to begin..", 1, (255,255,255))
-        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 350))
+        play_label = button_font.render("Play.. ", 1, (180,180,200))
+        title_label = title_font.render("Deep Space Invasion", 1, (255, 255, 255))
+        play_button = Button((WIDTH/2 - play_label.get_width()/2, 380),(60,60,90), play_label)
+        WIN.blit(title_label, (WIDTH/2 - title_label.get_width()/2, 120))
+        play_button.draw(WIN)
         pygame.display.update()
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_RETURN]:
-            main()
+            if play_button.click(event):
+                main()
             
     pygame.quit()
 
