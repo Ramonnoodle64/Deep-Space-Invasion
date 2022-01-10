@@ -1,16 +1,28 @@
 import pygame
 import random
+import os
 pygame.init()
 
 WIDTH, HEIGHT = 750, 750
 
 # Loads in enemies and player
 red_space_ship = pygame.image.load("assets/pixel_red_ship.png")
-blue_space_ship = pygame.image.load("assets/pixel_blue_ship_s.png")
+blue_space_ship = pygame.image.load("assets/pixel_blue_ship.png")
 green_space_ship = pygame.image.load("assets/pixel_green_ship.png")
 
 yellow_space_ship = pygame.image.load("assets/pixel_player_ship.png")
     
+# Loads in animations
+green_ship_death = []
+red_ship_death = []
+blue_ship_death = []
+for file in os.lisdir(os.getcwd() + "/assets/green_ship_death"):
+    green_ship_death.append(pygame.image.load(file))
+for file in os.listdir(os.getcwd() + "/assets/red_ship_death"):
+    red_ship_death.append(pygame.image.load(file))
+for file in os.listdir(os.getcwd() + "/assets/blue_ship_death"):
+    blue_ship_death.append(pygame.image.load(file))
+
 # Loads in lasers
 red_laser = pygame.image.load("assets/pixel_red_laser.png")
 green_laser = pygame.image.load("assets/pixel_green_laser.png")
