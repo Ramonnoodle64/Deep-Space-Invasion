@@ -39,6 +39,7 @@ red_boss = pygame.image.load("assets/pixel_red_boss.png")
 player_laser_sound = pygame.mixer.Sound("audio/player_laser_sound.wav")
 enemy_laser_sound = pygame.mixer.Sound("audio/enemy_laser_sound.wav")
 boss_laser_sound = pygame.mixer.Sound("audio/boss_laser_sound.wav")
+enemy_impact_sound = pygame.mixer.Sound("audio/enemy_impact_sound.wav")
 
 player_laser_sound.set_volume(.8)
 boss_laser_sound.set_volume(.2)
@@ -76,6 +77,7 @@ class Ship:
         self.laser_img = None
         self.color = None
 
+        self.shoot_now = True
         self.curr_frame = 0
         self.animate = False
         self.delete = False
@@ -87,6 +89,7 @@ class Ship:
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
         if self.animate == True:
+            self.shoot_now = False
             self.animate_death()
     
     def get_width(self):
@@ -147,6 +150,7 @@ class Player(Ship):
             else:
                 for enemy in enemies:
                     if laser.collision(enemy):
+                        enemy_impact_sound.play()
                         enemy.animate = True
                         if laser in self.lasers:
                             self.lasers.remove(laser)
@@ -165,7 +169,6 @@ class Player(Ship):
 
 class Enemy(Ship):
     shift = 0
-    shoot = True
 
     COLOR_MAP = {
         "red": (red_space_ship, red_laser, red_ship_death),
@@ -195,7 +198,7 @@ class Enemy(Ship):
             self.x -= Enemy.shift
             
     def shoot(self):
-        if Enemy.shoot:
+        if self.shoot_now:
             if not(self.off_screen()):
                 diff_map = {
                     "red": 60,
