@@ -16,12 +16,12 @@ yellow_space_ship = pygame.image.load("assets/pixel_player_ship.png")
 green_ship_death = []
 red_ship_death = []
 blue_ship_death = []
-for file in os.lisdir(os.getcwd() + "/assets/green_ship_death"):
-    green_ship_death.append(pygame.image.load(file))
-for file in os.listdir(os.getcwd() + "/assets/red_ship_death"):
-    red_ship_death.append(pygame.image.load(file))
-for file in os.listdir(os.getcwd() + "/assets/blue_ship_death"):
-    blue_ship_death.append(pygame.image.load(file))
+for file in os.listdir(os.getcwd()+"/assets/green_ship_death"):
+    green_ship_death.append(pygame.image.load(f"assets/green_ship_death/{file}"))
+for file in os.listdir(os.getcwd()+"/assets/red_ship_death"):
+    red_ship_death.append(pygame.image.load(f"assets/red_ship_death/{file}"))
+for file in os.listdir(os.getcwd()+"/assets/blue_ship_death"):
+    blue_ship_death.append(pygame.image.load(f"assets/blue_ship_death/{file}"))
 
 # Loads in lasers
 red_laser = pygame.image.load("assets/pixel_red_laser.png")
@@ -75,7 +75,10 @@ class Ship:
         self.ship_img = None
         self.laser_img = None
         self.color = None
-        
+
+        self.curr_frame = 0
+        self.animate = False
+        self.delete = False
         self.cool_down_counter = 0
     
     def off_screen(self, height):
@@ -83,6 +86,8 @@ class Ship:
     
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
+        if self.animate == True:
+            self.animate_death()
     
     def get_width(self):
         return self.ship_img.get_width()
@@ -106,6 +111,14 @@ class Ship:
             self.lasers.append(laser)
             self.cool_down_counter = 1
     
+    def animate_death(self):
+        self.ship_img = self.frames[int(self.curr_frame)]
+        if self.curr_frame < len(self.frames)-1:
+            self.curr_frame += .3
+        else:
+            self.animate = False
+            self.delete = True
+            
                 
 class Player(Ship):
     damage = True
@@ -134,7 +147,7 @@ class Player(Ship):
             else:
                 for enemy in enemies:
                     if laser.collision(enemy):
-                        enemies.remove(enemy)
+                        enemy.animate = True
                         if laser in self.lasers:
                             self.lasers.remove(laser)
                             
@@ -152,46 +165,48 @@ class Player(Ship):
 
 class Enemy(Ship):
     shift = 0
-    
+    shoot = True
+
     COLOR_MAP = {
-        "red": (red_space_ship, red_laser),
-        "green": (green_space_ship, green_laser),
-        "blue": (blue_space_ship, blue_laser)
+        "red": (red_space_ship, red_laser, red_ship_death),
+        "green": (green_space_ship, green_laser, green_ship_death),
+        "blue": (blue_space_ship, blue_laser, blue_ship_death)
     }
     
     def __init__(self, x, y, color, health=100):
         super().__init__(x, y, health)
         self.color = color
-        self.ship_img, self.laser_img = self.COLOR_MAP[color]
+        self.ship_img, self.laser_img, self.frames = self.COLOR_MAP[color]
         self.mask = pygame.mask.from_surface(self.ship_img)
-        self.counter = random.randrange(0,40)
+        self.shift_counter = random.randrange(0,40)
         self.direction = True
     
     def move(self, velocity):
         self.y += velocity
     
-        if self.counter % 40 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
+        if self.shift_counter % 40 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
             self.direction = not(self.direction)
             
         if self.direction == True:
-            self.counter += .5
+            self.shift_counter += .5
             self.x += Enemy.shift
         else:
-            self.counter -= .5
+            self.shift_counter -= .5
             self.x -= Enemy.shift
             
     def shoot(self):
-        if not(self.off_screen()):
-            diff_map = {
-                "red": 60,
-                "green": 50,
-                "blue": 50
-            }
-            enemy_laser_sound.play()
-            loc1 = self.x + self.get_width()/2 - 50
-            loc2 = self.y + self.get_height() - diff_map[self.color]
-            laser = Laser(loc1, loc2, self.laser_img, self.color)
-            return laser
+        if Enemy.shoot:
+            if not(self.off_screen()):
+                diff_map = {
+                    "red": 60,
+                    "green": 50,
+                    "blue": 50
+                }
+                enemy_laser_sound.play()
+                loc1 = self.x + self.get_width()/2 - 50
+                loc2 = self.y + self.get_height() - diff_map[self.color]
+                laser = Laser(loc1, loc2, self.laser_img, self.color)
+                return laser
 
 class Boss(Ship):
     shift = 1.5

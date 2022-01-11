@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import os
 from objects import collide, Player, Enemy, Boss, Button, Display
 
 pygame.font.init()
@@ -14,7 +15,6 @@ pygame.display.set_caption("Fake Space Invaders")
 enemy_collide_sound = pygame.mixer.Sound("audio/enemy_collide_sound.wav")
 player_impact_sound = pygame.mixer.Sound("audio/player_impact_sound.wav")
 player_impact_sound.set_volume(.4)
-
 BACKGROUND = pygame.transform.scale(pygame.image.load("assets/background-black.png"), (WIDTH, HEIGHT))
 
 def main(): 
@@ -288,6 +288,9 @@ def main():
             # Player loses a life if an enemy reaches the end of the screen
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
+                enemies.remove(enemy)
+
+            if enemy.delete:
                 enemies.remove(enemy)
         
         # Handles bosses
