@@ -1,7 +1,6 @@
 import pygame
 import random
 import sys
-import os
 from objects import collide, Player, Enemy, Boss, Button, Display
 
 pygame.font.init()
@@ -14,7 +13,9 @@ pygame.display.set_caption("Fake Space Invaders")
 # Loads in assets
 enemy_collide_sound = pygame.mixer.Sound("audio/enemy_collide_sound.wav")
 player_impact_sound = pygame.mixer.Sound("audio/player_impact_sound.wav")
+
 player_impact_sound.set_volume(.4)
+
 BACKGROUND = pygame.transform.scale(pygame.image.load("assets/background-black.png"), (WIDTH, HEIGHT))
 
 def main(): 
@@ -85,9 +86,11 @@ def main():
     # Defines text displays
     new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
     boss_level_label = wave_font.render(f"Boss Level", 1, (255,255,255))
-    
+    lost_label = end_font.render("You Lost!", 1, (255,255,255))
+
     new_level_display = Display(-new_level_label.get_width(), 350, new_level_label)
     boss_level_display = Display(-boss_level_label.get_width(), 350, boss_level_label)
+    lost_display = Display(WIDTH/2 - lost_label.get_width()/2, 350, lost_label)
     
     # Displays everything on screen
     def draw_window():
@@ -116,8 +119,7 @@ def main():
             boss_level_display.slide_draw(WIN, 25, FPS*3)
             
         if lost == True:
-            lost_label = end_font.render("You Lost!", 1, (255,255,255))
-            WIN.blit(lost_label, (WIDTH/2 - lost_label.get_width()/2, 350))
+            lost_display.blink_draw(WIN, 25)
             
         if won == True:
             won_label = end_font.render("You Won!!", 1, (255,255,255))
@@ -197,13 +199,14 @@ def main():
 
             if level % 10 == 0 and level != 0:
                 fire_rate -= 1
+                player.max_health += 50
                 player.health = player.max_health
                 Player.max_cooldown -= 5
                 wave_length -= 5
                 
             if level % 5 == 0 and level != 0:
                 wave_range -= 500
-                Enemy.shift += .5
+                Enemy.shift += .4
                 if player.health + 20 < player.max_health:
                     player.health += 20
                     
@@ -277,20 +280,21 @@ def main():
                 
             # Player loses health if they collide with an enemy
             if collide(enemy, player):
-                if Player.damage:
-                    if enemy.color == "blue":
-                        player.health -= 5
-                    else:
-                        player.health -= 10
-                enemy_collide_sound.play()
-                enemies.remove(enemy)
+                if enemy.animate == False:
+                    if Player.damage:
+                        if enemy.color == "blue":
+                            player.health -= 5
+                        else:
+                            player.health -= 10
+                    enemy_collide_sound.play()
+                    enemies.remove(enemy)
                 
             # Player loses a life if an enemy reaches the end of the screen
             if enemy.y + enemy.get_height() > HEIGHT:
                 lives -= 1
                 enemies.remove(enemy)
 
-            if enemy.delete:
+            if enemy.delete and enemy in enemies:
                 enemies.remove(enemy)
         
         # Handles bosses

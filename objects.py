@@ -79,7 +79,7 @@ class Ship:
 
         self.shoot_now = True
         self.curr_frame = 0
-        self.animate = False
+        self.animating = False
         self.delete = False
         self.cool_down_counter = 0
     
@@ -88,7 +88,7 @@ class Ship:
     
     def draw(self, window):
         window.blit(self.ship_img, (self.x, self.y))
-        if self.animate == True:
+        if self.animating == True:
             self.shoot_now = False
             self.animate_death()
     
@@ -119,7 +119,7 @@ class Ship:
         if self.curr_frame < len(self.frames)-1:
             self.curr_frame += .3
         else:
-            self.animate = False
+            self.animating = False
             self.delete = True
             
                 
@@ -151,7 +151,7 @@ class Player(Ship):
                 for enemy in enemies:
                     if laser.collision(enemy):
                         enemy_impact_sound.play()
-                        enemy.animate = True
+                        enemy.animating = True
                         if laser in self.lasers:
                             self.lasers.remove(laser)
                             
@@ -185,20 +185,21 @@ class Enemy(Ship):
         self.direction = True
     
     def move(self, velocity):
-        self.y += velocity
-    
-        if self.shift_counter % 40 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
-            self.direction = not(self.direction)
-            
-        if self.direction == True:
-            self.shift_counter += .5
-            self.x += Enemy.shift
-        else:
-            self.shift_counter -= .5
-            self.x -= Enemy.shift
+        if self.animating == False:
+            self.y += velocity
+        
+            if self.shift_counter % 40 == 0 or self.x + Enemy.shift > WIDTH - self.get_width() - 10 or self.x - Enemy.shift < 10:
+                self.direction = not(self.direction)
+                
+            if self.direction == True:
+                self.shift_counter += .5
+                self.x += Enemy.shift
+            else:
+                self.shift_counter -= .5
+                self.x -= Enemy.shift
             
     def shoot(self):
-        if self.shoot_now:
+        if not(self.animating):
             if not(self.off_screen()):
                 diff_map = {
                     "red": 60,
@@ -328,6 +329,8 @@ class Display():
         self.y = y
         self.label = label
         self.slide_time = 0
+        self.display_now = True
+        self.counter = 0
 
     def draw(self, window):
         window.blit(self.label, (self.x, self.y))
@@ -339,12 +342,21 @@ class Display():
             window.blit(self.label, (self.x, self.y))
 
         else:
-            if Display.counter > time - self.slide_time*2.5:
+            if self.counter > time - self.slide_time*2.5:
                     self.x += velocity
                     window.blit(self.label, (self.x, self.y))
             else:
                 window.blit(self.label, (self.x, self.y))
-                Display.counter += 1
+                self.counter += 1
+
+    def blink_draw(self, window, time):
+        if self.display_now:
+            window.blit(self.label, (self.x, self.y))
+        if self.counter >= time:
+            self.display_now = not(self.display_now)
+            self.counter = 0
+        else:
+            self.counter += 1
 
     def set_origin(self):
         Display.counter = 0
