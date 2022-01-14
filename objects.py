@@ -342,12 +342,12 @@ class Display():
             window.blit(self.label, (self.x, self.y))
 
         else:
-            if self.counter > time - self.slide_time*2.5:
+            if Display.counter > time - self.slide_time*2.5:
                     self.x += velocity
                     window.blit(self.label, (self.x, self.y))
             else:
                 window.blit(self.label, (self.x, self.y))
-                self.counter += 1
+                Display.counter += 1
 
     def blink_draw(self, window, time):
         if self.display_now:

@@ -86,7 +86,7 @@ def main():
     # Defines text displays
     new_level_label = wave_font.render(f"Wave {wave}", 1, (255,255,255))
     boss_level_label = wave_font.render(f"Boss Level", 1, (255,255,255))
-    lost_label = end_font.render("You Lost!", 1, (255,255,255))
+    lost_label = end_font.render("You Lost!", 1, (255,120,120))
 
     new_level_display = Display(-new_level_label.get_width(), 350, new_level_label)
     boss_level_display = Display(-boss_level_label.get_width(), 350, boss_level_label)
@@ -280,7 +280,7 @@ def main():
                 
             # Player loses health if they collide with an enemy
             if collide(enemy, player):
-                if enemy.animate == False:
+                if enemy.animating == False:
                     if Player.damage:
                         if enemy.color == "blue":
                             player.health -= 5
